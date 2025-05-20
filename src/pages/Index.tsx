@@ -3,6 +3,7 @@ import Hero from "@/components/landing/Hero";
 import Features from "@/components/landing/Features";
 import Navbar from "@/components/layout/Navbar";
 import ChatInterface from "@/components/chat/ChatInterface";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   return (
