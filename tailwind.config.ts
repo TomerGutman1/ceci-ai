@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -52,6 +53,13 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				ceci: {
+          blue: '#2563eb',
+          lightBlue: '#60a5fa',
+          gray: '#64748b',
+          lightGray: '#f1f5f9',
+          dark: '#1e293b'
+        },
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -68,6 +76,10 @@ export default {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
+			fontFamily: {
+        sans: ['Assistant', 'system-ui', 'sans-serif'],
+        heading: ['Rubik', 'system-ui', 'sans-serif']
+      },
 			keyframes: {
 				'accordion-down': {
 					from: {
