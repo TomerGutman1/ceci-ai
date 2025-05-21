@@ -16,7 +16,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto w-full">
+    <div className="max-w-5xl mx-auto w-full flex flex-col h-full">
       {/* Welcome Message */}
       <div className="text-center mb-12">
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-ceci-dark">
@@ -40,25 +40,29 @@ const Index = () => {
         ))}
       </div>
       
-      {/* Chat Question */}
-      <div className="text-center mb-8 w-full">
-        <h2 className="text-3xl font-bold mb-4">במה אוכל לסייע לך היום?</h2>
-      </div>
+      {/* Spacer to push chat to bottom */}
+      <div className="flex-grow"></div>
       
-      {/* Chat Input */}
-      <div className="relative w-full max-w-3xl mx-auto">
-        <Input
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          placeholder="שאל/י אותי משהו..."
-          className="pr-12 py-6 text-lg rounded-full"
-        />
-        <Button 
-          className="absolute left-1 top-1 rounded-full h-10 w-10 p-0" 
-          size="icon"
-        >
-          <Send className="h-5 w-5" />
-        </Button>
+      {/* Chat Question and Input - Fixed at bottom */}
+      <div className="w-full mt-auto">
+        <div className="text-center mb-4 w-full">
+          <h2 className="text-2xl font-bold">במה אוכל לסייע לך היום?</h2>
+        </div>
+        
+        <div className="relative w-full max-w-3xl mx-auto mb-4">
+          <Input
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            placeholder="שאל/י אותי משהו..."
+            className="pr-12 py-6 text-lg rounded-full"
+          />
+          <Button 
+            className="absolute left-1 top-1 rounded-full h-10 w-10 p-0" 
+            size="icon"
+          >
+            <Send className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </div>
   );

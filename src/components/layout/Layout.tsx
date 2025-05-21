@@ -6,7 +6,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -27,11 +26,12 @@ const Layout = ({ children }: LayoutProps) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Reordered to put chat first
   const sidebarItems = [
+    { title: "צ'אט עם CECI", icon: MessageSquare, url: "/dashboard" },
     { title: "דף הבית", icon: Home, url: "/" },
     { title: "דירוגים", icon: BarChart3, url: "/rankings" },
     { title: "החלטות", icon: FileText, url: "/methodology" },
-    { title: "צ'אט עם CECI", icon: MessageSquare, url: "/dashboard" },
   ];
 
   return (
@@ -61,14 +61,13 @@ const Layout = ({ children }: LayoutProps) => {
                   placeholder="חיפוש..." 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-3 pr-10 h-9 text-right"
+                  className="pl-3 pr-10 h-9 text-right rounded-full"
                 />
               </div>
             </div>
 
-            {/* תפריט */}
+            {/* תפריט - ללא כותרת */}
             <SidebarGroup>
-              <SidebarGroupLabel>תפריט ראשי</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {sidebarItems.map((item) => (
@@ -100,7 +99,7 @@ const Layout = ({ children }: LayoutProps) => {
         </Sidebar>
 
         {/* תוכן עיקרי */}
-        <SidebarInset className="p-6">
+        <SidebarInset className="p-6 relative">
           {children}
         </SidebarInset>
       </div>
