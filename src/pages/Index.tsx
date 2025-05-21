@@ -32,7 +32,7 @@ const Index = () => {
         {presetOptions.map((option, idx) => (
           <div 
             key={idx} 
-            className="flex items-center gap-3 p-4 bg-white rounded-md border border-gray-200 hover:border-ceci-blue cursor-pointer transition-all"
+            className="flex items-center gap-3 p-4 bg-white rounded-full border border-gray-200 hover:border-ceci-blue cursor-pointer transition-all"
             onClick={option.action}
           >
             <span className="font-medium">{option.title}</span>

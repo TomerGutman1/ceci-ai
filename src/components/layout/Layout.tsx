@@ -43,14 +43,11 @@ const Layout = ({ children }: LayoutProps) => {
           <SidebarContent>
             {/* לוגו */}
             <div className="flex items-center gap-2 p-4 border-b border-gray-200 mb-4">
-              <div className="h-10 w-10 rounded-full bg-ceci-blue flex items-center justify-center">
-                <img 
-                  src="/lovable-uploads/e5bef460-0411-4a25-87dc-d161206e0479.png" 
-                  alt="CECI Logo" 
-                  className="h-8 w-8 object-contain"
-                />
-              </div>
-              <span className="text-ceci-blue text-2xl font-heading font-bold">evaluator</span>
+              <img 
+                src="/lovable-uploads/b7118ccc-f6d9-49b8-b34d-4a7f9b454adf.png" 
+                alt="CECI Logo" 
+                className="h-8 w-auto object-contain"
+              />
             </div>
 
             {/* חיפוש */}
@@ -76,6 +73,7 @@ const Layout = ({ children }: LayoutProps) => {
                         isActive={location.pathname === item.url} 
                         onClick={() => navigate(item.url)}
                         tooltip={item.title}
+                        className="rounded-full"
                       >
                         <item.icon />
                         <span>{item.title}</span>
@@ -89,7 +87,7 @@ const Layout = ({ children }: LayoutProps) => {
             {/* כפתור התחברות */}
             <div className="mt-auto p-4 border-t border-gray-200">
               <Button 
-                className="w-full bg-ceci-blue hover:bg-blue-700" 
+                className="w-full bg-ceci-blue hover:bg-blue-700 rounded-full" 
                 onClick={() => navigate('/dashboard')}
               >
                 התחברות / הרשמה

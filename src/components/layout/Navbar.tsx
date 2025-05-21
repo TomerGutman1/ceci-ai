@@ -24,10 +24,11 @@ const Navbar = () => {
       <div className="container mx-auto">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-full bg-ceci-blue flex items-center justify-center">
-              <span className="text-white text-lg font-bold">C</span>
-            </div>
-            <span className="text-ceci-blue text-2xl font-heading font-bold">evaluator</span>
+            <img 
+              src="/lovable-uploads/b7118ccc-f6d9-49b8-b34d-4a7f9b454adf.png" 
+              alt="CECI Logo" 
+              className="h-8 w-auto object-contain"
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -36,7 +37,7 @@ const Navbar = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   isActive(item.path)
                     ? "text-ceci-blue bg-blue-50"
                     : "text-gray-700 hover:bg-gray-100"
@@ -49,11 +50,11 @@ const Navbar = () => {
 
           <div className="hidden md:flex items-center space-x-2 space-x-reverse">
             <Link to="/dashboard">
-              <Button variant="outline" className="font-medium">
+              <Button variant="outline" className="font-medium rounded-full">
                 התחברות
               </Button>
             </Link>
-            <Button className="bg-ceci-blue hover:bg-blue-700 font-medium">
+            <Button className="bg-ceci-blue hover:bg-blue-700 font-medium rounded-full">
               התחל עכשיו
             </Button>
           </div>
@@ -80,7 +81,7 @@ const Navbar = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-4 py-3 rounded-md text-sm font-medium ${
+                className={`px-4 py-3 rounded-full text-sm font-medium ${
                   isActive(item.path)
                     ? "text-ceci-blue bg-blue-50"
                     : "text-gray-700 hover:bg-gray-100"
@@ -92,12 +93,12 @@ const Navbar = () => {
             ))}
             <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200">
               <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
-                <Button variant="outline" className="w-full font-medium">
+                <Button variant="outline" className="w-full font-medium rounded-full">
                   התחברות
                 </Button>
               </Link>
               <Button
-                className="w-full bg-ceci-blue hover:bg-blue-700 font-medium"
+                className="w-full bg-ceci-blue hover:bg-blue-700 font-medium rounded-full"
                 onClick={() => setIsMenuOpen(false)}
               >
                 התחל עכשיו
