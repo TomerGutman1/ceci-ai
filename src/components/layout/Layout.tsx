@@ -84,8 +84,8 @@ const Layout = ({ children }: LayoutProps) => {
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {/* כפתור התחברות - adjusted positioning to align with chat input */}
-            <div className="absolute bottom-6 right-0 left-0 px-4">
+            {/* כפתור התחברות - positioned to align with chat input area */}
+            <div className="absolute bottom-20 right-0 left-0 px-4">
               <Button 
                 className="w-full bg-ceci-blue hover:bg-blue-700 rounded-full" 
                 onClick={() => navigate('/dashboard')}
@@ -106,3 +106,4 @@ const Layout = ({ children }: LayoutProps) => {
 };
 
 export default Layout;
+
