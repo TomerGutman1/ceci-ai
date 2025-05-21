@@ -1,129 +1,109 @@
-
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Send } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import Hero from "@/components/landing/Hero";
 import Features from "@/components/landing/Features";
 import Navbar from "@/components/layout/Navbar";
 import ChatInterface from "@/components/chat/ChatInterface";
-import { Button } from "@/components/ui/button";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const [inputMessage, setInputMessage] = useState("");
+  
+  const presetOptions = [
+    { title: "יש לי שאלה על החלטה", action: () => {} },
+    { title: "העלאת קובץ החלטה", action: () => {} },
+    { title: "יש לי מספר החלטה", action: () => {} },
+    { title: "העלאת קובץ החלטה", action: () => {} },
+    { title: "לפי תחום עניין", action: () => {} },
+  ];
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <main className="flex-grow">
-        <Hero />
-        <Features />
-        
-        <section className="py-20 px-4">
-          <div className="container mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-ceci-dark mb-4">
-                שאל את CECI ai
-              </h2>
-              <p className="text-lg text-ceci-gray max-w-2xl mx-auto">
-                נסה את ממשק ה-AI השיחתי שלנו ושאל שאלות על החלטות ממשלה
-              </p>
-            </div>
-            
-            <div className="max-w-3xl mx-auto">
-              <ChatInterface />
-            </div>
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Header */}
+      <header className="flex justify-between items-center p-4 border-b border-gray-100">
+        <div className="flex items-center gap-2">
+          <div className="h-10 w-10 rounded-full bg-ceci-blue flex items-center justify-center">
+            <img 
+              src="/lovable-uploads/e5bef460-0411-4a25-87dc-d161206e0479.png" 
+              alt="CECI Logo" 
+              className="h-8 w-8 object-contain"
+            />
           </div>
-        </section>
+          <span className="text-ceci-blue text-2xl font-heading font-bold">evaluator</span>
+        </div>
         
-        <section className="py-20 px-4 bg-ceci-dark text-white">
-          <div className="container mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              המומחים שלנו
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                {
-                  role: "מנהל מוצר בכיר",
-                  exp: "8 שנות ניסיון בתחום ה-GovTech"
-                },
-                {
-                  role: "מדען נתונים בכיר",
-                  exp: "8 שנות ניסיון בתחום ה-GovTech"
-                },
-                {
-                  role: "מפתח בכיר",
-                  exp: "12 שנות ניסיון בתחום ה-GovTech"
-                },
-                {
-                  role: "יועץ מומחה",
-                  exp: "PhD, מנכ\"ל משרד ממשלתי לשעבר"
-                }
-              ].map((expert, idx) => (
-                <div key={idx} className="bg-white bg-opacity-10 rounded-lg p-6 backdrop-blur-sm">
-                  <div className="w-20 h-20 rounded-full bg-ceci-blue mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-2xl">👤</span>
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{expert.role}</h3>
-                  <p className="text-sm text-blue-200">{expert.exp}</p>
-                </div>
-              ))}
-            </div>
-            
-            <div className="mt-16">
-              <p className="text-xl mb-6">
-                צוות המומחים שלנו משלב ידע נרחב בתחומי טכנולוגיה, מדיניות ציבורית וממשל
-              </p>
-              <Button className="bg-white text-ceci-dark hover:bg-gray-100">
-                קרא עוד על הצוות שלנו
-              </Button>
-            </div>
-          </div>
-        </section>
-      </main>
+        <nav className="hidden md:flex space-x-1 space-x-reverse">
+          <Button variant="ghost" onClick={() => navigate('/')}>בית</Button>
+          <Button variant="ghost" onClick={() => navigate('/about')}>אודות</Button>
+          <Button variant="ghost" onClick={() => navigate('/rankings')}>דירוגים</Button>
+          <Button variant="ghost" onClick={() => navigate('/methodology')}>איך אנחנו עובדים</Button>
+        </nav>
+      </header>
       
-      <footer className="bg-gray-100 py-10 px-4">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row md:justify-between items-center">
-            <div className="flex items-center mb-6 md:mb-0">
-              <div className="h-8 w-8 rounded-full bg-ceci-blue flex items-center justify-center mr-2">
-                <span className="text-white text-xs font-bold">C</span>
-              </div>
-              <span className="text-ceci-blue text-xl font-heading font-bold">evaluator</span>
+      <main className="flex-1 flex flex-col items-center px-4 py-12 max-w-5xl mx-auto w-full">
+        {/* Welcome Message */}
+        <div className="text-center mb-12">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-ceci-dark">
+            היי, אני היועץ AI של המרכז להעצמת האזרח לבחינת עבודת הממשלה. אז מה אני יודע לעשות?
+          </h1>
+          <p className="text-xl text-ceci-gray">
+            כרגע להעריך יישומות החלטות ממשלה. רוצה לנסות? על מנת להתחיל בחר/י בחירה מוגדרת מראש או שוחח/י אותי בצ׳אט.
+          </p>
+        </div>
+        
+        {/* Preset Options */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 w-full">
+          {presetOptions.map((option, idx) => (
+            <div 
+              key={idx} 
+              className="flex items-center gap-3 p-4 bg-white rounded-md border border-gray-200 hover:border-ceci-blue cursor-pointer transition-all"
+              onClick={option.action}
+            >
+              <span className="font-medium">{option.title}</span>
             </div>
-            
-            <div className="flex flex-col md:flex-row gap-6 md:gap-12 text-center md:text-right">
-              <div>
-                <h4 className="font-bold mb-2">מוצרים</h4>
-                <ul className="space-y-1 text-sm text-gray-600">
-                  <li>ניתוח החלטות</li>
-                  <li>תחזיות</li>
-                  <li>דירוגים</li>
-                  <li>דוחות</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-bold mb-2">משאבים</h4>
-                <ul className="space-y-1 text-sm text-gray-600">
-                  <li>מרכז ידע</li>
-                  <li>בלוג</li>
-                  <li>מחקרים</li>
-                  <li>שאלות נפוצות</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-bold mb-2">חברה</h4>
-                <ul className="space-y-1 text-sm text-gray-600">
-                  <li>אודות</li>
-                  <li>צוות</li>
-                  <li>שותפים</li>
-                  <li>צור קשר</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-300 mt-8 pt-8 text-center text-sm text-gray-500">
-            <p>© {new Date().getFullYear()} CECI ai. כל הזכויות שמורות.</p>
+          ))}
+        </div>
+        
+        {/* Chat Question */}
+        <div className="text-center mb-8 w-full">
+          <h2 className="text-3xl font-bold mb-4">במה אוכל לסייע לך היום?</h2>
+        </div>
+        
+        {/* Chat Input */}
+        <div className="relative w-full max-w-3xl">
+          <Input
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            placeholder="שאל/י אותי משהו..."
+            className="pr-12 py-6 text-lg rounded-full"
+          />
+          <Button 
+            className="absolute left-1 top-1 rounded-full h-10 w-10 p-0" 
+            size="icon"
+          >
+            <Send className="h-5 w-5" />
+          </Button>
+        </div>
+        
+        {/* Keep some of the original content in a hidden div that will be shown on other pages */}
+        <div className="hidden">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-ceci-dark mb-4">
+              שאל את CECI ai
+            </h2>
+            <p className="text-lg text-ceci-gray max-w-2xl mx-auto">
+              נסה את ממשק ה-AI השיחתי שלנו ושאל שאלות על החלטות ממשלה
+            </p>
           </div>
         </div>
+      </main>
+      
+      {/* Footer */}
+      <footer className="bg-gray-100 py-4 px-4 text-center text-sm text-gray-500">
+        <p>© {new Date().getFullYear()} CECI ai. כל הזכויות שמורות.</p>
       </footer>
     </div>
   );
