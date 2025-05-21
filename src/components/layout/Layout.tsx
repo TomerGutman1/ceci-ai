@@ -84,8 +84,8 @@ const Layout = ({ children }: LayoutProps) => {
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {/* כפתור התחברות */}
-            <div className="mt-auto p-4 border-t border-gray-200">
+            {/* כפתור התחברות - moved to absolute position at the bottom */}
+            <div className="absolute bottom-4 right-0 left-0 px-4">
               <Button 
                 className="w-full bg-ceci-blue hover:bg-blue-700 rounded-full" 
                 onClick={() => navigate('/dashboard')}
