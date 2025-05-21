@@ -15,7 +15,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto w-full flex flex-col h-full px-4">
+    <div className="max-w-5xl mx-auto w-full flex flex-col h-full px-4 flex-1 justify-center">
       {/* Welcome Message */}
       <div className="flex flex-col items-center justify-center mb-12 text-center max-w-3xl mx-auto">
         <h1 className="text-xl font-bold mb-4 text-ceci-dark">
@@ -38,9 +38,6 @@ const Index = () => {
           </div>
         ))}
       </div>
-      
-      {/* Spacer to push chat to bottom */}
-      <div className="flex-grow"></div>
       
       {/* Chat Question and Input - Fixed at bottom */}
       <div className="w-full mt-auto px-4 sm:px-8">
