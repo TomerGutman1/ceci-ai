@@ -26,10 +26,10 @@ const Layout = ({ children }: LayoutProps) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Reordered to put chat first
+  // Swapped order to put home page first, then chat
   const sidebarItems = [
-    { title: "צ'אט עם CECI", icon: MessageSquare, url: "/dashboard" },
-    { title: "דף הבית", icon: Home, url: "/" },
+    { title: "דף הבית", icon: Home, url: "/dashboard" },
+    { title: "צ'אט עם CECI", icon: MessageSquare, url: "/" },
     { title: "דירוגים", icon: BarChart3, url: "/rankings" },
     { title: "החלטות", icon: FileText, url: "/methodology" },
   ];

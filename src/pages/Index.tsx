@@ -15,26 +15,27 @@ const Index = () => {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto w-full flex flex-col h-full px-4 text-center">
-      {/* Welcome Message */}
-      <div className="text-center mb-12">
-        <h1 className="text-xl font-bold mb-4 text-ceci-dark">
+    <div className="max-w-5xl mx-auto w-full flex flex-col h-full px-4">
+      {/* Welcome Message - Moved to top */}
+      <div className="text-center mb-12 mt-8">
+        <h2 className="text-2xl font-bold mb-6">במה אוכל לסייע לך היום?</h2>
+        <h1 className="text-lg mb-4 text-ceci-dark">
           היי, אני היועץ AI של המרכז להעצמת האזרח לבחינת עבודת הממשלה. אז מה אני יודע לעשות?
         </h1>
-        <p className="text-xl text-ceci-gray">
+        <p className="text-lg text-ceci-gray">
           כרגע להעריך יישומות החלטות ממשלה. רוצה לנסות? על מנת להתחיל בחר/י בחירה מוגדרת מראש או שוחח/י אותי בצ׳אט.
         </p>
       </div>
       
       {/* Preset Options */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 mx-auto">
+      <div className="flex flex-wrap justify-center gap-4 mb-12">
         {presetOptions.map((option, idx) => (
           <div 
             key={idx} 
-            className="flex items-center justify-center h-10 gap-3 px-4 bg-white rounded-full border border-gray-200 hover:border-ceci-blue cursor-pointer transition-all max-w-[220px]"
+            className="flex items-center justify-center h-10 gap-3 px-4 bg-white rounded-full border border-gray-200 hover:border-ceci-blue cursor-pointer transition-all w-[200px]"
             onClick={option.action}
           >
-            <span className="font-medium">{option.title}</span>
+            <span className="font-medium text-center">{option.title}</span>
           </div>
         ))}
       </div>
@@ -42,13 +43,9 @@ const Index = () => {
       {/* Spacer to push chat to bottom */}
       <div className="flex-grow"></div>
       
-      {/* Chat Question and Input - Fixed at bottom */}
-      <div className="w-full mt-auto px-4 sm:px-8">
-        <div className="text-center mb-4 w-full">
-          <h2 className="text-2xl font-bold">במה אוכל לסייע לך היום?</h2>
-        </div>
-        
-        <div className="relative w-full max-w-3xl mx-auto mb-4">
+      {/* Chat Input - Aligned with login button */}
+      <div className="w-full mt-auto mb-4 px-4 sm:px-8 flex items-center">
+        <div className="relative w-full max-w-3xl">
           <Input
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
