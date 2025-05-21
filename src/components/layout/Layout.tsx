@@ -84,8 +84,8 @@ const Layout = ({ children }: LayoutProps) => {
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {/* כפתור התחברות - moved to absolute position at the bottom */}
-            <div className="absolute bottom-4 right-0 left-0 px-4">
+            {/* כפתור התחברות - adjusted positioning to align with chat input */}
+            <div className="absolute bottom-6 right-0 left-0 px-4">
               <Button 
                 className="w-full bg-ceci-blue hover:bg-blue-700 rounded-full" 
                 onClick={() => navigate('/dashboard')}
