@@ -1,0 +1,111 @@
+
+import { ReactNode } from "react";
+import { 
+  SidebarProvider,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+  SidebarInset
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Home, BarChart3, FileText, MessageSquare, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+
+interface LayoutProps {
+  children: ReactNode;
+}
+
+const Layout = ({ children }: LayoutProps) => {
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const sidebarItems = [
+    { title: "דף הבית", icon: Home, url: "/" },
+    { title: "דירוגים", icon: BarChart3, url: "/rankings" },
+    { title: "החלטות", icon: FileText, url: "/methodology" },
+    { title: "צ'אט עם CECI", icon: MessageSquare, url: "/dashboard" },
+  ];
+
+  return (
+    <SidebarProvider defaultOpen={true}>
+      <div className="min-h-screen flex w-full bg-gray-50">
+        {/* סרגל צד ימני */}
+        <Sidebar side="right" variant="sidebar" collapsible="offcanvas">
+          <SidebarRail />
+          <SidebarContent>
+            {/* לוגו */}
+            <div className="flex items-center gap-2 p-4 border-b border-gray-200 mb-4">
+              <div className="h-10 w-10 rounded-full bg-ceci-blue flex items-center justify-center">
+                <img 
+                  src="/lovable-uploads/e5bef460-0411-4a25-87dc-d161206e0479.png" 
+                  alt="CECI Logo" 
+                  className="h-8 w-8 object-contain"
+                />
+              </div>
+              <span className="text-ceci-blue text-2xl font-heading font-bold">evaluator</span>
+            </div>
+
+            {/* חיפוש */}
+            <div className="px-3 mb-6">
+              <div className="relative">
+                <Search className="absolute right-3 top-2.5 h-4 w-4 text-gray-500" />
+                <Input 
+                  placeholder="חיפוש..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-3 pr-10 h-9 text-right"
+                />
+              </div>
+            </div>
+
+            {/* תפריט */}
+            <SidebarGroup>
+              <SidebarGroupLabel>תפריט ראשי</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {sidebarItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        isActive={location.pathname === item.url} 
+                        onClick={() => navigate(item.url)}
+                        tooltip={item.title}
+                      >
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            {/* כפתור התחברות */}
+            <div className="mt-auto p-4 border-t border-gray-200">
+              <Button 
+                className="w-full bg-ceci-blue hover:bg-blue-700" 
+                onClick={() => navigate('/dashboard')}
+              >
+                התחברות / הרשמה
+              </Button>
+            </div>
+          </SidebarContent>
+        </Sidebar>
+
+        {/* תוכן עיקרי */}
+        <SidebarInset className="p-6">
+          {children}
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
+  );
+};
+
+export default Layout;
