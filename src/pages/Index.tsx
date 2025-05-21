@@ -11,15 +11,14 @@ const Index = () => {
     { title: "יש לי שאלה על החלטה", action: () => {} },
     { title: "העלאת קובץ החלטה", action: () => {} },
     { title: "יש לי מספר החלטה", action: () => {} },
-    { title: "העלאת קובץ החלטה", action: () => {} },
     { title: "לפי תחום עניין", action: () => {} },
   ];
 
   return (
-    <div className="max-w-5xl mx-auto w-full flex flex-col h-full">
+    <div className="max-w-5xl mx-auto w-full flex flex-col h-full px-4 text-center">
       {/* Welcome Message */}
       <div className="text-center mb-12">
-        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-ceci-dark">
+        <h1 className="text-xl font-bold mb-4 text-ceci-dark">
           היי, אני היועץ AI של המרכז להעצמת האזרח לבחינת עבודת הממשלה. אז מה אני יודע לעשות?
         </h1>
         <p className="text-xl text-ceci-gray">
@@ -28,11 +27,11 @@ const Index = () => {
       </div>
       
       {/* Preset Options */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 mx-auto">
         {presetOptions.map((option, idx) => (
           <div 
             key={idx} 
-            className="flex items-center justify-center h-10 gap-3 px-4 bg-white rounded-full border border-gray-200 hover:border-ceci-blue cursor-pointer transition-all"
+            className="flex items-center justify-center h-10 gap-3 px-4 bg-white rounded-full border border-gray-200 hover:border-ceci-blue cursor-pointer transition-all max-w-[220px]"
             onClick={option.action}
           >
             <span className="font-medium">{option.title}</span>
@@ -44,7 +43,7 @@ const Index = () => {
       <div className="flex-grow"></div>
       
       {/* Chat Question and Input - Fixed at bottom */}
-      <div className="w-full mt-auto">
+      <div className="w-full mt-auto px-4 sm:px-8">
         <div className="text-center mb-4 w-full">
           <h2 className="text-2xl font-bold">במה אוכל לסייע לך היום?</h2>
         </div>

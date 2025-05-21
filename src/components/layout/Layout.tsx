@@ -42,7 +42,7 @@ const Layout = ({ children }: LayoutProps) => {
           <SidebarRail />
           <SidebarContent>
             {/* לוגו */}
-            <div className="flex items-center gap-2 p-4 border-b border-gray-200 mb-4">
+            <div className="flex items-center justify-center p-4 border-b border-gray-200 mb-4">
               <img 
                 src="/lovable-uploads/b7118ccc-f6d9-49b8-b34d-4a7f9b454adf.png" 
                 alt="CECI Logo" 
