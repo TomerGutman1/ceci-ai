@@ -15,9 +15,9 @@ const Index = () => {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto w-full flex flex-col h-full px-4 text-center">
+    <div className="max-w-5xl mx-auto w-full flex flex-col h-full px-4">
       {/* Welcome Message */}
-      <div className="text-center mb-12">
+      <div className="flex flex-col items-center justify-center mb-12 text-center max-w-3xl mx-auto">
         <h1 className="text-xl font-bold mb-4 text-ceci-dark">
           היי, אני היועץ AI של המרכז להעצמת האזרח לבחינת עבודת הממשלה. אז מה אני יודע לעשות?
         </h1>
@@ -27,14 +27,14 @@ const Index = () => {
       </div>
       
       {/* Preset Options */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 mx-auto">
+      <div className="flex flex-wrap justify-center gap-4 mb-12">
         {presetOptions.map((option, idx) => (
           <div 
             key={idx} 
-            className="flex items-center justify-center h-10 gap-3 px-4 bg-white rounded-full border border-gray-200 hover:border-ceci-blue cursor-pointer transition-all max-w-[220px]"
+            className="flex items-center justify-center h-10 px-4 bg-white rounded-full border border-gray-200 hover:border-ceci-blue cursor-pointer transition-all w-[200px]"
             onClick={option.action}
           >
-            <span className="font-medium">{option.title}</span>
+            <span className="font-medium text-center">{option.title}</span>
           </div>
         ))}
       </div>
