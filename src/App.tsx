@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
 import Rankings from "./pages/Rankings";
 import Methodology from "./pages/Methodology";
+import Decisions from "./pages/Decisions";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/about" element={<Layout><About /></Layout>} />
           <Route path="/rankings" element={<Layout><Rankings /></Layout>} />
           <Route path="/methodology" element={<Layout><Methodology /></Layout>} />
+          <Route path="/decisions" element={<Layout><Decisions /></Layout>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<Layout><NotFound /></Layout>} />
         </Routes>

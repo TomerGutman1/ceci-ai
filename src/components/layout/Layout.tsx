@@ -26,12 +26,12 @@ const Layout = ({ children }: LayoutProps) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Swapped order to put home page first, then chat
+  // Updated to point to /decisions instead of /methodology
   const sidebarItems = [
     { title: "דף הבית", icon: Home, url: "/dashboard" },
     { title: "צ'אט עם CECI", icon: MessageSquare, url: "/" },
     { title: "דירוגים", icon: BarChart3, url: "/rankings" },
-    { title: "החלטות", icon: FileText, url: "/methodology" },
+    { title: "החלטות", icon: FileText, url: "/decisions" },
   ];
 
   return (
