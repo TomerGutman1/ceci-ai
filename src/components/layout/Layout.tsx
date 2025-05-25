@@ -1,3 +1,4 @@
+
 import { ReactNode } from "react";
 import { 
   SidebarProvider,
@@ -25,10 +26,10 @@ const Layout = ({ children }: LayoutProps) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Sidebar items with correct navigation paths
+  // Updated to point to /decisions instead of /methodology
   const sidebarItems = [
     { title: "דף הבית", icon: Home, url: "/dashboard" },
-    { title: "צ'אט עם CECI", icon: MessageSquare, url: "/" }, // Points to Index page
+    { title: "צ'אט עם CECI", icon: MessageSquare, url: "/" },
     { title: "דירוגים", icon: BarChart3, url: "/rankings" },
     { title: "החלטות", icon: FileText, url: "/decisions" },
   ];
