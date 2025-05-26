@@ -65,20 +65,12 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
         content: msg.content
       }));
 
-      const { data, error } = await supabase.functions.invoke('chat-completion', {
-        body: { messages: chatMessages }
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
       // Handle streaming response
       const response = await fetch(`https://hthrsrekzyobmlvtquub.supabase.co/functions/v1/chat-completion`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${supabase.supabaseKey}`,
-          'apikey': supabase.supabaseKey,
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0aHJzcmVrenlvYm1sdnRxdXViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5Mzc5MzMsImV4cCI6MjA2MzUxMzkzM30.V4ZIY4I1R3tUIWkuEU7t0ExC8gbLJKYjIPvrERbdbIw`,
+          'apikey': `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0aHJzcmVrenlvYm1sdnRxdXViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5Mzc5MzMsImV4cCI6MjA2MzUxMzkzM30.V4ZIY4I1R3tUIWkuEU7t0ExC8gbLJKYjIPvrERbdbIw`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ messages: chatMessages }),
