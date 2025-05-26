@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Message {
   role: "user" | "assistant";
@@ -26,6 +28,7 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -35,7 +38,7 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
     scrollToBottom();
   }, [messages]);
 
-  const processNewMessage = (text: string) => {
+  const processNewMessage = async (text: string) => {
     if (!text.trim()) return;
 
     const userMessage: Message = {
@@ -47,27 +50,46 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
 
-    // Simulate AI response after a delay
-    setTimeout(() => {
-      let responseContent: string;
-      
-      if (text.includes("החלטה") || text.includes("ממשלה")) {
-        responseContent = "לפי הניתוח שלי, החלטות ממשלה בתחום זה מראות אחוזי יישום של כ-65%. הגורמים המרכזיים המשפיעים על הצלחת היישום הם תקצוב מספק, הגדרת גורם אחראי ברור ולוח זמנים ריאלי.";
-      } else if (text.includes("מספר")) {
-        responseContent = "כדי לנתח החלטת ממשלה ספציפית, אנא ספק את מספר ההחלטה המלא ואוכל לספק ניתוח מפורט על הסיכויים ליישומה והאתגרים הצפויים.";
-      } else {
-        responseContent = "אני יכול לעזור בניתוח החלטות ממשלה, הערכת סיכויי היישום שלהן, וזיהוי אתגרים אפשריים בתהליך היישום. אנא ציין החלטה ספציפית או תחום מדיניות שמעניין אותך.";
+    try {
+      // Prepare messages for OpenAI (excluding timestamps and converting to OpenAI format)
+      const chatMessages = [...messages, userMessage].map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+
+      const { data, error } = await supabase.functions.invoke('chat-completion', {
+        body: { messages: chatMessages }
+      });
+
+      if (error) {
+        throw new Error(error.message);
       }
-      
+
       const assistantMessage: Message = {
         role: "assistant",
-        content: responseContent,
+        content: data.message,
         timestamp: new Date(),
       };
       
       setMessages((prev) => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error calling OpenAI:', error);
+      toast({
+        title: "שגיאה",
+        description: "אירעה שגיאה בחיבור ליועץ ה-AI. אנא נסה שוב.",
+        variant: "destructive",
+      });
+      
+      // Add error message to chat
+      const errorMessage: Message = {
+        role: "assistant",
+        content: "מצטער, אירעה שגיאה טכנית. אנא נסה שוב.",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -79,8 +101,6 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
 
   useEffect(() => {
     if (externalMessage && externalMessage.text) {
-      // Check if this specific timestamped message has already been processed if needed,
-      // but for now, relying on timestamp change is sufficient.
       processNewMessage(externalMessage.text);
     }
   }, [externalMessage]);
