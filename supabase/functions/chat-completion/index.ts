@@ -42,6 +42,7 @@ Your goals:
         messages: [systemMessage, ...messages],
         temperature: 0.7,
         max_tokens: 1000,
+        stream: true,
       }),
     });
 
@@ -50,11 +51,65 @@ Your goals:
       throw new Error(error.error?.message || 'OpenAI API error');
     }
 
-    const data = await response.json();
-    const assistantMessage = data.choices[0].message.content;
+    // Create a readable stream to handle the streaming response
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = response.body?.getReader();
+        if (!reader) {
+          controller.close();
+          return;
+        }
 
-    return new Response(JSON.stringify({ message: assistantMessage }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        const decoder = new TextDecoder();
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) {
+              controller.close();
+              break;
+            }
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n');
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                
+                if (data === '[DONE]') {
+                  controller.close();
+                  return;
+                }
+
+                try {
+                  const parsed = JSON.parse(data);
+                  const content = parsed.choices?.[0]?.delta?.content;
+                  
+                  if (content) {
+                    controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                  }
+                } catch (parseError) {
+                  // Skip invalid JSON lines
+                  continue;
+                }
+              }
+            }
+          }
+        } catch (error) {
+          controller.error(error);
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
     });
   } catch (error) {
     console.error('Error in chat-completion function:', error);

@@ -50,6 +50,14 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
 
+    // Add an empty assistant message that we'll stream into
+    const assistantMessageId = Date.now();
+    setMessages((prev) => [...prev, {
+      role: "assistant",
+      content: "",
+      timestamp: new Date(),
+    }]);
+
     try {
       // Prepare messages for OpenAI (excluding timestamps and converting to OpenAI format)
       const chatMessages = [...messages, userMessage].map(msg => ({
@@ -65,13 +73,63 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
         throw new Error(error.message);
       }
 
-      const assistantMessage: Message = {
-        role: "assistant",
-        content: data.message,
-        timestamp: new Date(),
-      };
-      
-      setMessages((prev) => [...prev, assistantMessage]);
+      // Handle streaming response
+      const response = await fetch(`https://hthrsrekzyobmlvtquub.supabase.co/functions/v1/chat-completion`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supabase.supabaseKey}`,
+          'apikey': supabase.supabaseKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messages: chatMessages }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get streaming response');
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (reader) {
+        let accumulatedContent = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.content) {
+                  accumulatedContent += parsed.content;
+                  
+                  // Update the last message (assistant message) with accumulated content
+                  setMessages((prev) => {
+                    const newMessages = [...prev];
+                    newMessages[newMessages.length - 1] = {
+                      role: "assistant",
+                      content: accumulatedContent,
+                      timestamp: new Date(),
+                    };
+                    return newMessages;
+                  });
+                }
+              } catch (parseError) {
+                // Skip invalid JSON
+                continue;
+              }
+            }
+          }
+        }
+      }
     } catch (error) {
       console.error('Error calling OpenAI:', error);
       toast({
@@ -80,13 +138,16 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
         variant: "destructive",
       });
       
-      // Add error message to chat
-      const errorMessage: Message = {
-        role: "assistant",
-        content: "מצטער, אירעה שגיאה טכנית. אנא נסה שוב.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      // Replace the empty assistant message with error message
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        newMessages[newMessages.length - 1] = {
+          role: "assistant",
+          content: "מצטער, אירעה שגיאה טכנית. אנא נסה שוב.",
+          timestamp: new Date(),
+        };
+        return newMessages;
+      });
     } finally {
       setIsLoading(false);
     }
