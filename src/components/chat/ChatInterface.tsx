@@ -10,7 +10,11 @@ interface Message {
   timestamp: Date;
 }
 
-const ChatInterface = () => {
+interface ChatInterfaceProps {
+  externalMessage?: { text: string; timestamp: number } | null;
+}
+
+const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -31,37 +35,33 @@ const ChatInterface = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!inputMessage.trim()) return;
-    
-    // Add user message
+  const processNewMessage = (text: string) => {
+    if (!text.trim()) return;
+
     const userMessage: Message = {
       role: "user",
-      content: inputMessage,
+      content: text,
       timestamp: new Date(),
     };
-    
+
     setMessages((prev) => [...prev, userMessage]);
-    setInputMessage("");
     setIsLoading(true);
-    
+
     // Simulate AI response after a delay
     setTimeout(() => {
-      let response: string;
+      let responseContent: string;
       
-      if (inputMessage.includes("החלטה") || inputMessage.includes("ממשלה")) {
-        response = "לפי הניתוח שלי, החלטות ממשלה בתחום זה מראות אחוזי יישום של כ-65%. הגורמים המרכזיים המשפיעים על הצלחת היישום הם תקצוב מספק, הגדרת גורם אחראי ברור ולוח זמנים ריאלי.";
-      } else if (inputMessage.includes("מספר")) {
-        response = "כדי לנתח החלטת ממשלה ספציפית, אנא ספק את מספר ההחלטה המלא ואוכל לספק ניתוח מפורט על הסיכויים ליישומה והאתגרים הצפויים.";
+      if (text.includes("החלטה") || text.includes("ממשלה")) {
+        responseContent = "לפי הניתוח שלי, החלטות ממשלה בתחום זה מראות אחוזי יישום של כ-65%. הגורמים המרכזיים המשפיעים על הצלחת היישום הם תקצוב מספק, הגדרת גורם אחראי ברור ולוח זמנים ריאלי.";
+      } else if (text.includes("מספר")) {
+        responseContent = "כדי לנתח החלטת ממשלה ספציפית, אנא ספק את מספר ההחלטה המלא ואוכל לספק ניתוח מפורט על הסיכויים ליישומה והאתגרים הצפויים.";
       } else {
-        response = "אני יכול לעזור בניתוח החלטות ממשלה, הערכת סיכויי היישום שלהן, וזיהוי אתגרים אפשריים בתהליך היישום. אנא ציין החלטה ספציפית או תחום מדיניות שמעניין אותך.";
+        responseContent = "אני יכול לעזור בניתוח החלטות ממשלה, הערכת סיכויי היישום שלהן, וזיהוי אתגרים אפשריים בתהליך היישום. אנא ציין החלטה ספציפית או תחום מדיניות שמעניין אותך.";
       }
       
       const assistantMessage: Message = {
         role: "assistant",
-        content: response,
+        content: responseContent,
         timestamp: new Date(),
       };
       
@@ -69,6 +69,21 @@ const ChatInterface = () => {
       setIsLoading(false);
     }, 1500);
   };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputMessage.trim()) return;
+    processNewMessage(inputMessage);
+    setInputMessage("");
+  };
+
+  useEffect(() => {
+    if (externalMessage && externalMessage.text) {
+      // Check if this specific timestamped message has already been processed if needed,
+      // but for now, relying on timestamp change is sufficient.
+      processNewMessage(externalMessage.text);
+    }
+  }, [externalMessage]);
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("he-IL", {
@@ -78,7 +93,7 @@ const ChatInterface = () => {
   };
 
   return (
-    <div className="flex flex-col h-[600px] bg-white rounded-xl shadow-sm border border-gray-200">
+    <div className="flex flex-col h-[600px] bg-white rounded-xl shadow-sm border border-gray-200 w-full">
       <div className="p-4 border-b border-gray-200">
         <h2 className="font-bold text-lg">יועץ ה-AI של CECI</h2>
         <p className="text-sm text-gray-500">שאל שאלות על החלטות ממשלה וקבל תשובות בזמן אמת</p>

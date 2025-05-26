@@ -1,17 +1,15 @@
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Send } from "lucide-react";
 import { useState } from "react";
+import ChatInterface from "@/components/chat/ChatInterface"; // Updated import path
 
 const Index = () => {
-  const [inputMessage, setInputMessage] = useState("");
+  const [chatTriggerMessage, setChatTriggerMessage] = useState<{ text: string; timestamp: number } | null>(null);
   
   const presetOptions = [
-    { title: "יש לי שאלה על החלטה", action: () => {} },
-    { title: "העלאת קובץ החלטה", action: () => {} },
-    { title: "יש לי מספר החלטה", action: () => {} },
-    { title: "לפי תחום עניין", action: () => {} },
+    { title: "יש לי שאלה על החלטה", action: () => setChatTriggerMessage({ text: "יש לי שאלה על החלטה", timestamp: Date.now() }) },
+    { title: "העלאת קובץ החלטה", action: () => setChatTriggerMessage({ text: "העלאת קובץ החלטה", timestamp: Date.now() }) }, // Placeholder for actual file upload logic
+    { title: "יש לי מספר החלטה", action: () => setChatTriggerMessage({ text: "יש לי מספר החלטה", timestamp: Date.now() }) },
+    { title: "לפי תחום עניין", action: () => setChatTriggerMessage({ text: "לפי תחום עניין", timestamp: Date.now() }) },
   ];
 
   return (
@@ -27,7 +25,7 @@ const Index = () => {
         </p>
       </div>
 
-      <div id="chat-body">
+      <div id="chat-body" className="flex flex-col flex-grow"> {/* Added flex-col and flex-grow here */}
         {/* Preset Options */}
         <div className="flex flex-wrap justify-center gap-4 mb-12">
           {presetOptions.map((option, idx) => (
@@ -41,24 +39,13 @@ const Index = () => {
           ))}
         </div>
         
-        {/* Spacer to push chat to bottom */}
-        <div className="flex-grow"></div>
+        {/* Spacer to push chat to bottom - replaced by flex-grow on parent */}
+        {/* <div className="flex-grow"></div> */} 
         
-        {/* Chat Input - Aligned with login button */}
-        <div className="w-full mt-auto mb-4 px-4 sm:px-8 flex items-center">
-          <div className="relative w-full max-w-3xl">
-            <Input
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="שאל/י אותי משהו..."
-              className="pr-12 py-6 text-lg rounded-full"
-            />
-            <Button 
-              className="absolute left-1 top-1 rounded-full h-10 w-10 p-0" 
-              size="icon"
-            >
-              <Send className="h-5 w-5" />
-            </Button>
+        {/* ChatInterface replaces the old input - Aligned with login button */}
+        <div className="w-full mt-auto mb-4 flex justify-center"> {/* Removed px-4 sm:px-8, added justify-center */}
+          <div className="w-full max-w-3xl"> {/* Ensure ChatInterface doesn't exceed this width */}
+            <ChatInterface externalMessage={chatTriggerMessage} />
           </div>
         </div>
       </div>
