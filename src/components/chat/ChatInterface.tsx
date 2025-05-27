@@ -27,8 +27,14 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
   
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  
+  // Refs for streaming state management
+  const accumulatedContentRef = useRef("");
+  const streamingUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastFlushTimeRef = useRef(Date.now());
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -37,6 +43,62 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Cleanup streaming interval on unmount
+  useEffect(() => {
+    return () => {
+      if (streamingUpdateIntervalRef.current) {
+        clearInterval(streamingUpdateIntervalRef.current);
+      }
+    };
+  }, []);
+
+  const startStreamingUpdates = () => {
+    if (streamingUpdateIntervalRef.current) {
+      clearInterval(streamingUpdateIntervalRef.current);
+    }
+
+    streamingUpdateIntervalRef.current = setInterval(() => {
+      const now = Date.now();
+      // Only update if we have new content and enough time has passed
+      if (accumulatedContentRef.current && now - lastFlushTimeRef.current >= 50) {
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === "assistant") {
+            newMessages[newMessages.length - 1] = {
+              role: "assistant",
+              content: accumulatedContentRef.current,
+              timestamp: new Date(),
+            };
+          }
+          return newMessages;
+        });
+        lastFlushTimeRef.current = now;
+      }
+    }, 50); // Update UI every 50ms for smooth streaming
+  };
+
+  const stopStreamingUpdates = () => {
+    if (streamingUpdateIntervalRef.current) {
+      clearInterval(streamingUpdateIntervalRef.current);
+      streamingUpdateIntervalRef.current = null;
+    }
+
+    // Final flush to ensure all content is displayed
+    if (accumulatedContentRef.current) {
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === "assistant") {
+          newMessages[newMessages.length - 1] = {
+            role: "assistant",
+            content: accumulatedContentRef.current,
+            timestamp: new Date(),
+          };
+        }
+        return newMessages;
+      });
+    }
+  };
 
   const processNewMessage = async (text: string) => {
     if (!text.trim()) return;
@@ -51,12 +113,15 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
     setIsLoading(true);
 
     // Add an empty assistant message that we'll stream into
-    const assistantMessageId = Date.now();
     setMessages((prev) => [...prev, {
       role: "assistant",
       content: "",
       timestamp: new Date(),
     }]);
+
+    // Reset streaming state
+    accumulatedContentRef.current = "";
+    setIsStreaming(true);
 
     try {
       // Prepare messages for OpenAI (excluding timestamps and converting to OpenAI format)
@@ -84,12 +149,15 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
       const decoder = new TextDecoder();
 
       if (reader) {
-        let accumulatedContent = '';
+        // Start the streaming UI updates
+        startStreamingUpdates();
 
         while (true) {
           const { done, value } = await reader.read();
           
-          if (done) break;
+          if (done) {
+            break;
+          }
 
           const chunk = decoder.decode(value);
           const lines = chunk.split('\n');
@@ -101,18 +169,8 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
               try {
                 const parsed = JSON.parse(data);
                 if (parsed.content) {
-                  accumulatedContent += parsed.content;
-                  
-                  // Update the last message (assistant message) with accumulated content
-                  setMessages((prev) => {
-                    const newMessages = [...prev];
-                    newMessages[newMessages.length - 1] = {
-                      role: "assistant",
-                      content: accumulatedContent,
-                      timestamp: new Date(),
-                    };
-                    return newMessages;
-                  });
+                  // Accumulate content in ref for throttled updates
+                  accumulatedContentRef.current += parsed.content;
                 }
               } catch (parseError) {
                 // Skip invalid JSON
@@ -121,6 +179,9 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
             }
           }
         }
+
+        // Stop streaming updates and do final flush
+        stopStreamingUpdates();
       }
     } catch (error) {
       console.error('Error calling OpenAI:', error);
@@ -140,8 +201,12 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
         };
         return newMessages;
       });
+
+      // Clean up streaming state
+      stopStreamingUpdates();
     } finally {
       setIsLoading(false);
+      setIsStreaming(false);
     }
   };
 
@@ -195,7 +260,7 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
           </div>
         ))}
         
-        {isLoading && (
+        {(isLoading || isStreaming) && (
           <div className="flex justify-start">
             <div className="bg-gray-100 text-gray-800 rounded-e-2xl rounded-es-2xl p-3">
               <div className="flex space-x-2">
