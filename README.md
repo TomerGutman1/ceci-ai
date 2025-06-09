@@ -1,73 +1,152 @@
-# Welcome to your Lovable project
+# CECI-AI - Government Decisions Search Assistant
 
-## Project info
+AI-powered search assistant for Israeli government decisions database with 24,716+ decisions.
 
-**URL**: https://lovable.dev/projects/1515cad7-ba82-4307-9a87-3fd90019a650
+## 🚀 Features
 
-## How can I edit this code?
+- **Smart Search**: AI-powered search using GPT-4 with Hebrew language support
+- **35 Policy Tags**: Enhanced search accuracy with official government policy areas
+- **Real-time Chat**: Streaming responses with markdown formatting
+- **Full Database**: Access to 24,716 government decisions from Supabase
+- **Bilingual Support**: Hebrew and English interface
 
-There are several ways of editing your application.
+## 📋 Prerequisites
 
-**Use Lovable**
+- Node.js 18+ 
+- npm or yarn
+- Supabase account with Israeli government decisions database
+- OpenAI API key with GPT-4 access
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/1515cad7-ba82-4307-9a87-3fd90019a650) and start prompting.
+## 🛠️ Installation
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Clone the repository:
+```bash
+git clone [your-private-repo-url]
+cd ceci-ai-main
+```
 
-**Use your preferred IDE**
+2. Install dependencies:
+```bash
+# Install frontend dependencies
+npm install
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+# Install backend dependencies
+cd server
+npm install
+```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+3. Set up environment variables:
+```bash
+# Copy the example env file
+cp .env.example .env.local
+cp server/.env.example server/.env.local
 
-Follow these steps:
+# Edit both .env.local files with your actual keys:
+# - OPENAI_API_KEY
+# - SUPABASE_URL  
+# - SUPABASE_SERVICE_KEY
+# - SUPABASE_ANON_KEY
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🏃‍♂️ Running Locally
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Option 1: Run both frontend and backend (Recommended)
+```bash
+cd server
+.\run-server.ps1
+```
+This will:
+- Build the backend
+- Start backend on port 5173
+- Start frontend on port 5174
+- Open browser automatically
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Option 2: Run separately
+```bash
+# Terminal 1 - Backend
+cd server
+npm run build
+npm start
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Terminal 2 - Frontend
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 🏗️ Project Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+ceci-ai-main/
+├── src/                    # Frontend React app
+│   ├── components/
+│   │   └── chat/
+│   │       └── ChatInterface.tsx
+│   └── services/
+│       └── chat.service.ts
+├── server/                 # Backend Express server
+│   ├── src/
+│   │   ├── services/
+│   │   │   └── decisionSearchService.ts
+│   │   ├── llms/
+│   │   │   ├── tools.ts
+│   │   │   └── prompts/
+│   │   ├── api/
+│   │   │   └── openai.ts
+│   │   └── controllers/
+│   │       └── chat.ts
+│   ├── dist/              # Compiled backend
+│   └── package.json
+├── .env.example           # Environment template
+└── package.json           # Frontend dependencies
+```
 
-**Use GitHub Codespaces**
+## 🔑 Environment Variables
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Frontend (.env.local)
+- `VITE_SUPABASE_URL` - Your Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Supabase anonymous key
+- `VITE_API_URL` - Backend API URL (default: http://localhost:5173/api)
 
-## What technologies are used for this project?
+### Backend (server/.env.local)
+- `OPENAI_API_KEY` - OpenAI API key with GPT-4 access
+- `SUPABASE_URL` - Supabase project URL
+- `SUPABASE_SERVICE_KEY` - Supabase service role key
+- `PORT` - Backend port (default: 5173)
+- `FRONTEND_URL` - Frontend URL for CORS (default: http://localhost:5174)
 
-This project is built with:
+## 🏷️ Supported Policy Tags
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The system recognizes 35 official policy areas including:
+- ביטחון לאומי וצה״ל
+- חינוך
+- בריאות ורפואה
+- טכנולוגיה, חדשנות ודיגיטל
+- And 31 more...
 
-## How can I deploy this project?
+## 🚀 Deployment
 
-Simply open [Lovable](https://lovable.dev/projects/1515cad7-ba82-4307-9a87-3fd90019a650) and click on Share -> Publish.
+### For Lovable.dev or similar platforms:
 
-## Can I connect a custom domain to my Lovable project?
+1. Set environment variables in platform dashboard
+2. Build command: `npm run build`
+3. Start command: `npm start`
+4. Ensure both frontend (5174) and backend (5173) ports are configured
 
-Yes, you can!
+### Important Notes:
+- The backend loads all 24K decisions into memory on startup
+- First startup may take 10-20 seconds
+- Requires ~200MB RAM for decision data
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🔒 Security
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- Never commit `.env` files
+- Keep API keys secure
+- This is a private repository - do not make public
+- All keys belong to CECI
+
+## 📞 Support
+
+For issues or questions, contact the CECI development team.
+
+---
+
+**Note**: This project contains proprietary code and data belonging to CECI. Do not share or distribute without authorization.

@@ -1,12 +1,15 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import chatService from "@/services/chat.service";
+import { ChatEvent, ChatEventType } from "@/types/streams";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
+  id?: string;
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
@@ -19,6 +22,7 @@ interface ChatInterfaceProps {
 const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
+      id: "initial-message",
       role: "assistant",
       content: "שלום! אני יועץ ה-AI של CECI. כיצד אוכל לסייע לך בנושא החלטות ממשלה?",
       timestamp: new Date(),
@@ -28,13 +32,12 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [conversationId, setConversationId] = useState<string>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
-  // Refs for streaming state management
-  const accumulatedContentRef = useRef("");
-  const streamingUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const lastFlushTimeRef = useRef(Date.now());
+  // Ref for accumulating streaming content
+  const streamingContentRef = useRef("");
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -44,66 +47,11 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
     scrollToBottom();
   }, [messages]);
 
-  // Cleanup streaming interval on unmount
-  useEffect(() => {
-    return () => {
-      if (streamingUpdateIntervalRef.current) {
-        clearInterval(streamingUpdateIntervalRef.current);
-      }
-    };
-  }, []);
-
-  const startStreamingUpdates = () => {
-    if (streamingUpdateIntervalRef.current) {
-      clearInterval(streamingUpdateIntervalRef.current);
-    }
-
-    streamingUpdateIntervalRef.current = setInterval(() => {
-      const now = Date.now();
-      // Only update if we have new content and enough time has passed
-      if (accumulatedContentRef.current && now - lastFlushTimeRef.current >= 50) {
-        setMessages((prev) => {
-          const newMessages = [...prev];
-          if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === "assistant") {
-            newMessages[newMessages.length - 1] = {
-              role: "assistant",
-              content: accumulatedContentRef.current,
-              timestamp: new Date(),
-            };
-          }
-          return newMessages;
-        });
-        lastFlushTimeRef.current = now;
-      }
-    }, 50); // Update UI every 50ms for smooth streaming
-  };
-
-  const stopStreamingUpdates = () => {
-    if (streamingUpdateIntervalRef.current) {
-      clearInterval(streamingUpdateIntervalRef.current);
-      streamingUpdateIntervalRef.current = null;
-    }
-
-    // Final flush to ensure all content is displayed
-    if (accumulatedContentRef.current) {
-      setMessages((prev) => {
-        const newMessages = [...prev];
-        if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === "assistant") {
-          newMessages[newMessages.length - 1] = {
-            role: "assistant",
-            content: accumulatedContentRef.current,
-            timestamp: new Date(),
-          };
-        }
-        return newMessages;
-      });
-    }
-  };
-
   const processNewMessage = async (text: string) => {
     if (!text.trim()) return;
 
     const userMessage: Message = {
+      id: `user-${Date.now()}`,
       role: "user",
       content: text,
       timestamp: new Date(),
@@ -111,99 +59,87 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
 
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
+    setIsStreaming(true);
+    streamingContentRef.current = "";
 
-    // Add an empty assistant message that we'll stream into
+    // Add empty assistant message for streaming
+    const assistantMessageId = `assistant-${Date.now()}`;
     setMessages((prev) => [...prev, {
+      id: assistantMessageId,
       role: "assistant",
       content: "",
       timestamp: new Date(),
     }]);
 
-    // Reset streaming state
-    accumulatedContentRef.current = "";
-    setIsStreaming(true);
-
     try {
-      // Prepare messages for OpenAI (excluding timestamps and converting to OpenAI format)
-      const chatMessages = [...messages, userMessage].map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
-
-      // Handle streaming response
-      const response = await fetch(`https://hthrsrekzyobmlvtquub.supabase.co/functions/v1/chat-completion`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0aHJzcmVrenlvYm1sdnRxdXViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5Mzc5MzMsImV4cCI6MjA2MzUxMzkzM30.V4ZIY4I1R3tUIWkuEU7t0ExC8gbLJKYjIPvrERbdbIw`,
-          'apikey': `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0aHJzcmVrenlvYm1sdnRxdXViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5Mzc5MzMsImV4cCI6MjA2MzUxMzkzM30.V4ZIY4I1R3tUIWkuEU7t0ExC8gbLJKYjIPvrERbdbIw`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ messages: chatMessages }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get streaming response');
-      }
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      if (reader) {
-        // Start the streaming UI updates
-        startStreamingUpdates();
-
-        while (true) {
-          const { done, value } = await reader.read();
-          
-          if (done) {
-            break;
-          }
-
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              
-              try {
-                const parsed = JSON.parse(data);
-                if (parsed.content) {
-                  // Accumulate content in ref for throttled updates
-                  accumulatedContentRef.current += parsed.content;
-                }
-              } catch (parseError) {
-                // Skip invalid JSON
-                continue;
-              }
+      // Use the govainaTG backend through our service
+      const eventStream = await chatService.sendMessage(text, conversationId);
+      
+      for await (const event of eventStream) {
+        switch (event.type) {
+          case ChatEventType.MessageCreated:
+            if (event.conversationId) {
+              setConversationId(event.conversationId);
             }
-          }
+            break;
+            
+          case ChatEventType.MessageAdded:
+            if (event.message) {
+              setMessages(prev => [...prev, {
+                ...event.message,
+                timestamp: new Date(),
+              }]);
+              streamingContentRef.current = "";
+            }
+            break;
+            
+          case ChatEventType.MessageDelta:
+            if (event.delta) {
+              streamingContentRef.current += event.delta;
+              setMessages(prev => {
+                const newMessages = [...prev];
+                const lastMsg = newMessages[newMessages.length - 1];
+                if (lastMsg && lastMsg.role === "assistant") {
+                  lastMsg.content = streamingContentRef.current;
+                }
+                return [...newMessages];
+              });
+            }
+            break;
+            
+          case ChatEventType.MessageCompleted:
+            if (event.text) {
+              streamingContentRef.current = event.text;
+              setMessages(prev => {
+                const newMessages = [...prev];
+                const lastMsg = newMessages[newMessages.length - 1];
+                if (lastMsg && lastMsg.role === "assistant") {
+                  lastMsg.content = event.text;
+                }
+                return [...newMessages];
+              });
+            }
+            setIsStreaming(false);
+            break;
         }
-
-        // Stop streaming updates and do final flush
-        stopStreamingUpdates();
       }
     } catch (error) {
-      console.error('Error calling OpenAI:', error);
+      console.error('Error calling govainaTG backend:', error);
       toast({
         title: "שגיאה",
         description: "אירעה שגיאה בחיבור ליועץ ה-AI. אנא נסה שוב.",
         variant: "destructive",
       });
       
-      // Replace the empty assistant message with error message
+      // Update last message with error
       setMessages((prev) => {
         const newMessages = [...prev];
-        newMessages[newMessages.length - 1] = {
-          role: "assistant",
-          content: "מצטער, אירעה שגיאה טכנית. אנא נסה שוב.",
-          timestamp: new Date(),
-        };
-        return newMessages;
+        const lastMsg = newMessages[newMessages.length - 1];
+        if (lastMsg && lastMsg.role === "assistant") {
+          lastMsg.content = "מצטער, אירעה שגיאה טכנית. אנא נסה שוב.";
+        }
+        return [...newMessages];
       });
-
-      // Clean up streaming state
-      stopStreamingUpdates();
     } finally {
       setIsLoading(false);
       setIsStreaming(false);
@@ -212,7 +148,7 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || isLoading) return;
     processNewMessage(inputMessage);
     setInputMessage("");
   };
@@ -230,6 +166,59 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
     });
   };
 
+  // Custom renderer for messages with Markdown support
+  const MessageContent = ({ content, role }: { content: string; role: string }) => {
+    if (role === "user") {
+      return <p className="text-sm whitespace-pre-wrap">{content}</p>;
+    }
+
+    return (
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        className="text-sm prose prose-sm max-w-none prose-blue"
+        components={{
+          // Custom link renderer to open in new tab
+          a: ({ node, children, ...props }) => (
+            <a 
+              {...props} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 underline font-medium"
+            >
+              {children}
+            </a>
+          ),
+          // Custom rendering for lists
+          ul: ({ children }) => (
+            <ul className="list-disc list-inside space-y-1 my-2">{children}</ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="list-decimal list-inside space-y-1 my-2">{children}</ol>
+          ),
+          // Custom rendering for paragraphs
+          p: ({ children }) => (
+            <p className="mb-2 last:mb-0">{children}</p>
+          ),
+          // Custom rendering for headings
+          h2: ({ children }) => (
+            <h2 className="text-lg font-bold mt-3 mb-2">{children}</h2>
+          ),
+          h3: ({ children }) => (
+            <h3 className="text-base font-semibold mt-2 mb-1">{children}</h3>
+          ),
+          // Custom rendering for bold text
+          strong: ({ children }) => (
+            <strong className="font-bold">{children}</strong>
+          ),
+          // Custom rendering for horizontal rules
+          hr: () => <hr className="my-3 border-gray-300" />,
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    );
+  };
+
   return (
     <div className="flex flex-col h-[600px] bg-white rounded-xl shadow-sm border border-gray-200 w-full">
       <div className="p-4 border-b border-gray-200">
@@ -240,7 +229,7 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message, index) => (
           <div
-            key={index}
+            key={message.id || index}
             className={`flex ${
               message.role === "user" ? "justify-start flex-row-reverse" : "justify-start"
             }`}
@@ -252,7 +241,7 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
                   : "bg-gray-100 text-gray-800 rounded-e-2xl rounded-es-2xl"
               } p-3`}
             >
-              <p className="text-sm">{message.content}</p>
+              <MessageContent content={message.content} role={message.role} />
               <span className="text-xs opacity-70 mt-1 self-end">
                 {formatTime(message.timestamp)}
               </span>
@@ -260,10 +249,10 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
           </div>
         ))}
         
-        {(isLoading || isStreaming) && (
+        {(isLoading && !isStreaming) && (
           <div className="flex justify-start">
             <div className="bg-gray-100 text-gray-800 rounded-e-2xl rounded-es-2xl p-3">
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 space-x-reverse">
                 <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0ms" }}></div>
                 <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "150ms" }}></div>
                 <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "300ms" }}></div>
@@ -282,6 +271,7 @@ const ChatInterface = ({ externalMessage }: ChatInterfaceProps) => {
           placeholder="הקלד את שאלתך כאן..."
           className="flex-1"
           disabled={isLoading}
+          dir="rtl"
         />
         <Button 
           type="submit" 

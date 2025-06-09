@@ -66,7 +66,7 @@ const Decisions = () => {
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">החלטות ממשלה</h2>
-          <div className="flex gap-2 justify-center">
+          <div className="flex gap-2">
             <Button
               variant={viewMode === "cards" ? "default" : "outline"}
               size="sm"
